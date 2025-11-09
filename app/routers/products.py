@@ -1,5 +1,9 @@
 from fastapi import APIRouter
 
+# Zone study
+
+
+# Zone study end
 router = APIRouter(
     prefix="/products",
     tags=["products"]
@@ -28,3 +32,4 @@ async def update_product(product_id: int):
 @router.delete("/{product_id}")
 async def delete_product(product_id: int):
     return {"message": f"Товар {product_id} удалён (заглушка)"}
+
