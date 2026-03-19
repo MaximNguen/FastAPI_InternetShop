@@ -2,7 +2,7 @@
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
     <data-source source="LOCAL" name="ecommerce" uuid="c1156b3b-a44f-4060-b16b-321a4658e2fe">
-      <driver-ref>sqlite.xerial</driver-ref>
+      <driver-ref>2ab4a668-955f-4726-9c75-b57ac4a834cd</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:D:\python\Projects\FastAPI_InternetShop\ecommerce.db</jdbc-url>

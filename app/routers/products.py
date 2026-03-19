@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=list[ProductSchema], status_code=status.HTTP_200_OK)
-async def get_all_products(db: Depends = Depends(get_db)) -> list[ProductSchema]:
+async def get_all_products(db: Session = Depends(get_db)) -> list[ProductSchema]:
     try:
         stmt = select(ProductModel).where(ProductModel.is_active == True)
         products = db.scalars(stmt).all()
@@ -43,8 +43,8 @@ async def create_product(product: ProductCreate = Body(...), db: Session = Depen
     except Exception as e:
         raise e
 
-@router.get("/category/{category_id}", response_model=ProductSchema, status_code=status.HTTP_200_OK)
-async def get_products_by_category(category_id: int = Path(...), db: Session = Depends(get_db)):
+@router.get("/category/{category_id}", response_model=list[ProductSchema], status_code=status.HTTP_200_OK)
+async def get_products_by_category(category_id: int, db: Session = Depends(get_db)):
     try:
         stmt_for_category = select(CategoryModel).where(CategoryModel.id == category_id and CategoryModel.is_active == True)
         category = db.execute(stmt_for_category).scalar()
@@ -62,8 +62,8 @@ async def get_products_by_category(category_id: int = Path(...), db: Session = D
 @router.get("/{product_id}", response_model=ProductSchema, status_code=status.HTTP_200_OK)
 async def get_product(product_id: int = Path(...), db: Session = Depends(get_db)):
     try:
-        stmt = select(CategoryModel).where(CategoryModel.id == product_id)
-        products = db.scalars(stmt).all()
+        stmt = select(ProductModel).where(ProductModel.id == product_id)
+        products = db.scalars(stmt).first()
 
         if not products:
             raise HTTPException(status_code=status.HTTP_204_NOT_FOUND, detail="Product not found")
@@ -89,17 +89,19 @@ async def update_product(product_id: int, product: ProductCreate, db: Session = 
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@router.delete("/{product_id}", response_model=ProductSchema, status_code=status.HTTP_200_OK)
+@router.delete("/{product_id}", status_code=status.HTTP_200_OK)
 async def delete_product(product_id: int, db: Session = Depends(get_db)):
-    try:
-        stmt = select(ProductModel).where(ProductModel.id == product_id)
-        product = db.execute(stmt).first()
-        if not product:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+    """
+    Удаляет товар по его ID (логическое удаление).
+    """
+    product = db.scalars(
+        select(ProductModel).where(ProductModel.id == product_id, ProductModel.is_active == True)
+    ).first()
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Product not found or inactive")
 
-        db.execute(delete(ProductModel).where(ProductModel.id == product_id))
-        db.commit()
-        db.refresh(product)
-        return product
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    product.is_active = False
+    db.commit()
+
+    return {"status": "success", "message": "Product marked as inactive"}
