@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from decimal import Decimal
 from typing import Annotated
 
@@ -65,3 +65,18 @@ class Product(BaseModel):
     is_active: bool = Field(description="Активность товара")
 
     model_config = ConfigDict(from_attributes=True)
+    
+class User(BaseModel):
+    id: int
+    email: EmailStr
+    is_active: bool
+    role: str
+    model_config = ConfigDict(from_attributes=True)
+    
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6, description="Пароль (минимум 6 символов)")
+    role: str = Field(default="buyer", description="Роль пользователя (по умолчанию 'buyer')")
+    
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
