@@ -80,3 +80,11 @@ class UserCreate(BaseModel):
     
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+    
+class ProductList(BaseModel):
+    items: list[Product] = Field(description="Список товаров для текущей страницы")
+    total: int = Field(description="Общее количество товаров", ge=0)
+    page: int = Field(ge=1, description="Номер текущей страницы")
+    page_size: int = Field(ge=1, description="Количество элементов на странице")
+    
+    model_config = ConfigDict(from_attributes=True)  # Для чтения из ORM-объектов

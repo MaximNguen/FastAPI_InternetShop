@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = f"postgresql+asyncpg://ecommerce_user:{getenv("DB_PASS")}@localhost:5432/ecommerce_db"
+DATABASE_URL = f"postgresql+asyncpg://ecommerce_user:12345678@localhost:5432/ecommerce_db"
 
 async_engine = create_async_engine(DATABASE_URL, echo=True)
 
