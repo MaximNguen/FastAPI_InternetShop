@@ -3,6 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 from typing import List
 
+from app.models.cart_items import CartItem
+
 class User(Base):
     __tablename__ = "users"
     
@@ -13,3 +15,5 @@ class User(Base):
     role: Mapped[str] = mapped_column(String, default="buyer")
     
     products: Mapped[List["Product"]] = relationship("Product", back_populates="seller")
+    cart_items: Mapped[list["CartItem"]] = relationship("CartItem", back_populates="user", cascade="all, delete-orphan")
+    
