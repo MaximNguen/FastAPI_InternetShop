@@ -30,12 +30,13 @@ class Product(Base):
             setweight(to_tsvector('english', coalesce(description, '')), 'B')
             """,
             persisted=True
-        ), # Поле для полнотекстового поиска
+        ),
         nullable=False,
     )
     
     category: Mapped["Category"] = relationship("Category", back_populates="products")
     seller: Mapped["User"] = relationship("User", back_populates="products")
+    cart_items = relationship("CartItem", back_populates="product")
     
     __table_args__ = (
         Index("ix_products_tsv_gin", "tsv", postgresql_using="gin"),
