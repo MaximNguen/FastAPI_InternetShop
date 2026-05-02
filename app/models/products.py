@@ -37,6 +37,8 @@ class Product(Base):
     category: Mapped["Category"] = relationship("Category", back_populates="products")
     seller: Mapped["User"] = relationship("User", back_populates="products")
     cart_items = relationship("CartItem", back_populates="product")
+    orders: Mapped[list["Order"]] = relationship("Order", back_populates="user", cascade="all, delete-orphan")
+    order_items: Mapped[list["OrderItem"]] = relationship("OrderItem", back_populates="product")
     
     __table_args__ = (
         Index("ix_products_tsv_gin", "tsv", postgresql_using="gin"),

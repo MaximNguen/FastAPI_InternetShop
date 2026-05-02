@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from decimal import Decimal
 from typing import Annotated
@@ -116,5 +118,35 @@ class Cart(BaseModel):
     items: list[CartItem] = Field(default_factory=list, description="Содержимое корзины")
     total_quantity: int = Field(..., ge=0, description="Общее количество товаров")
     total_price: Decimal = Field(..., ge=0, description="Общая стоимость товаров")
+
+    model_config = ConfigDict(from_attributes=True)
+
+class OrderItem(BaseModel):
+    id: int = Field(..., description="ID позиции заказа")
+    product_id: int = Field(..., description="ID товара")
+    quantity: int = Field(..., ge=1, description="Количество")
+    unit_price: Decimal = Field(..., ge=0, description="Цена за единицу на момент покупки")
+    total_price: Decimal = Field(..., ge=0, description="Сумма по позиции")
+    product: Product | None = Field(None, description="Полная информация о товаре")
+
+    model_config = ConfigDict(from_attributes=True)
+    
+class Order(BaseModel):
+    id: int = Field(..., description="ID заказа")
+    user_id: int = Field(..., description="ID пользователя")
+    status: str = Field(..., description="Текущий статус заказа")
+    total_amount: Decimal = Field(..., ge=0, description="Общая стоимость")
+    created_at: datetime = Field(..., description="Когда заказ был создан")
+    updated_at: datetime = Field(..., description="Когда последний раз обновлялся")
+    items: list[OrderItem] = Field(default_factory=list, description="Список позиций")
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OrderList(BaseModel):
+    items: list[Order] = Field(description="Список заказов для текущей страницы")
+    total: int = Field(description="Общее количество заказов", ge=0)
+    page: int = Field(ge=1, description="Номер текущей страницы")
+    page_size: int = Field(ge=1, description="Количество элементов на странице")
 
     model_config = ConfigDict(from_attributes=True)
